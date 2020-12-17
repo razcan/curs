@@ -8,6 +8,13 @@ def products_list(request):
     return render(request, 'product_list.html',{'results': results})
 
 
+def supplier_list(request):
+    suppliers = Supplier.objects.all() # [:30]
+    data = {"supplier": list(suppliers.values())} # .values("pk", "name")
+    response = JsonResponse(data)
+    return response
+
+
 def product_detail(request, id):
     try:
         product = Item.objects.get(id=id)
@@ -21,11 +28,33 @@ def product_detail(request, id):
                     "supplier": product.supplier.name               
                 }}
         response = JsonResponse(data)
-    except Product.DoesNotExist:
+    except product.DoesNotExist:
         response = JsonResponse({
             "error": {
                 "code": 404,
                 "message": "product not found!"
+            }},
+            status=404)
+    return response
+
+
+def supplier_detail(request, id):
+    try:
+        supplier = Supplier.objects.get(id=id)
+        data = {"supplier": {
+                    "name": supplier.name,
+                    "code": supplier.code,
+                    "category": supplier.category,
+                    "location": supplier.location,
+                    "date": supplier.date,
+                    "active": supplier.active             
+                }}
+        response = JsonResponse(data)
+    except supplier.DoesNotExist:
+        response = JsonResponse({
+            "error": {
+                "code": 404,
+                "message": "supplier not found!"
             }},
             status=404)
     return response
